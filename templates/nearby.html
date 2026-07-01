@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Nearby Places Explorer — NexTrip AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Additional glassmorphism and custom styles for nearby places */
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: border-color 0.3s, box-shadow 0.3s;
+        color: #fff;
+        width: 100%;
+        padding: 0.8rem 1.2rem;
+        border-radius: 1rem;
+        font-size: 1rem;
+        outline: none;
+        font-family: inherit;
+    }
+    .glass-input:focus {
+        border-color: rgba(0, 240, 255, 0.5);
+        box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15), 0 0 30px rgba(0, 240, 255, 0.05);
+        outline: none;
+    }
+    .glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .glass-select {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23b0b0d0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.2em;
+        padding-right: 2.5rem;
+        color: #e0e0ff;
+        width: 100%;
+        padding: 0.8rem 1.2rem;
+        border-radius: 1rem;
+        font-size: 1rem;
+        outline: none;
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .glass-select:focus {
+        border-color: rgba(0, 240, 255, 0.5);
+        box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15), 0 0 30px rgba(0, 240, 255, 0.05);
+        outline: none;
+    }
+    .glass-select option {
+        background: #0b1120;
+        color: #e0e0ff;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 9999px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 20px rgba(0, 240, 255, 0.15);
+        width: 100%;
+    }
+    .btn-gradient:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 30px rgba(0, 240, 255, 0.3);
+    }
+
+    .btn-outline-glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .btn-outline-glass:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(0, 240, 255, 0.4);
+        color: #00f0ff;
+        transform: translateY(-2px);
+    }
+    .btn-outline-glass.saved {
+        background: rgba(0, 240, 255, 0.15);
+        border-color: #00f0ff;
+        color: #00f0ff;
+    }
+
+    .place-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1.5rem;
+        padding: 1.25rem;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform: translateY(0);
+    }
+    .place-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(0, 240, 255, 0.25);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+    .place-card .place-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    .place-card .place-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        flex: 1;
+    }
+    .place-card .place-rating {
+        font-size: 0.9rem;
+        color: #ffd700;
+        white-space: nowrap;
+        background: rgba(255, 215, 0, 0.1);
+        padding: 0.1rem 0.6rem;
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 215, 0, 0.1);
+    }
+    .place-card .place-address {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .place-card .place-address i {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.3);
+    }
+    .place-card .place-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .place-card .place-distance {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .place-card .place-distance i {
+        color: #4ecdc4;
+    }
+    .place-card .place-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.7rem;
+        border-radius: 9999px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .place-card .place-status.open {
+        background: rgba(78, 205, 196, 0.15);
+        color: #4ecdc4;
+        border: 1px solid rgba(78, 205, 196, 0.2);
+    }
+    .place-card .place-status.closed {
+        background: rgba(255, 61, 138, 0.15);
+        color: #ff3d8a;
+        border: 1px solid rgba(255, 61, 138, 0.2);
+    }
+    .place-card .place-status.unknown {
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    #nearby-loading {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: white;
+    }
+    #nearby-loading .spinner {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top: 4px solid #00f0ff;
+        border-right: 4px solid #b44aff;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 1rem;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    #nearby-results {
+        min-height: 150px;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.3);
+        padding: 3rem 1rem;
+    }
+    .empty-state i {
+        font-size: 4rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 1rem;
+    }
+    .empty-state .sub {
+        font-size: 0.95rem;
+        opacity: 0.6;
+    }
+
+    .results-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0.5rem 0 1rem 0;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.9rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .results-stats .count {
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .results-stats .count span {
+        color: #00f0ff;
+    }
+
+    @media (max-width: 640px) {
+        .place-card {
+            padding: 1rem;
+        }
+        .place-card .place-name {
+            font-size: 1rem;
+        }
+        .results-stats {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Page Heading -->
+    <h1 class="text-4xl md:text-5xl font-bold text-center mb-2">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+            Nearby Places Explorer
+        </span>
+    </h1>
+    <p class="text-center text-white/50 mb-8">Discover restaurants, hotels, attractions and more around you</p>
+
+    <!-- Search Controls -->
+    <div class="glass p-6 rounded-2xl mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+            <div class="md:col-span-5">
+                <label for="nearby-location" class="block text-sm font-medium text-white/70 mb-1">Location</label>
+                <input type="text" id="nearby-location" placeholder="Enter city or address..." 
+                       class="glass-input">
+            </div>
+            <div class="md:col-span-4">
+                <label for="nearby-category" class="block text-sm font-medium text-white/70 mb-1">Category</label>
+                <select id="nearby-category" class="glass-select">
+                    <option value="restaurant">Restaurant</option>
+                    <option value="hotel">Hotel</option>
+                    <option value="hospital">Hospital</option>
+                    <option value="atm">ATM</option>
+                    <option value="shopping_mall">Shopping</option>
+                    <option value="tourist_attraction">Tourist Attraction</option>
+                </select>
+            </div>
+            <div class="md:col-span-3">
+                <button id="search-nearby-btn" class="btn-gradient">
+                    <i class="fas fa-magnifying-glass"></i> Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="nearby-loading" class="glass p-6 rounded-2xl">
+        <div class="spinner"></div>
+        <p class="text-white/80">Searching for nearby places...</p>
+        <p class="text-white/40 text-sm mt-1">AI is scanning the area for the best spots</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="nearby-results">
+        <div class="empty-state">
+            <i class="fas fa-compass"></i>
+            <p class="text-lg">Discover places near you</p>
+            <p class="sub">Enter a location and select a category to explore</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/nearby.js') }}"></script>
+{% endblock %}

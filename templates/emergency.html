@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Hub — NexTrip AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Additional glassmorphism and custom styles for emergency */
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: border-color 0.3s, box-shadow 0.3s;
+        color: #fff;
+    }
+    .glass-input:focus {
+        border-color: rgba(255, 61, 138, 0.5);
+        box-shadow: 0 0 0 3px rgba(255, 61, 138, 0.2), 0 0 20px rgba(255, 61, 138, 0.05);
+        outline: none;
+    }
+    .glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-gradient-danger {
+        background: linear-gradient(135deg, #ff3d8a, #ff6b6b);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-gradient-danger:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(255, 61, 138, 0.3);
+    }
+
+    .btn-gradient-cyan {
+        background: linear-gradient(135deg, #00f0ff, #00b4d8);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-gradient-cyan:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+    }
+
+    .btn-outline-glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s;
+    }
+    .btn-outline-glass:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(0, 240, 255, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .emergency-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1.5rem;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .emergency-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(255, 61, 138, 0.3);
+        box-shadow: 0 12px 40px rgba(255, 61, 138, 0.1);
+    }
+    .emergency-card .icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .emergency-card .icon.police { color: #4ecdc4; }
+    .emergency-card .icon.ambulance { color: #ff3d8a; }
+    .emergency-card .icon.fire { color: #ff6b6b; }
+    .emergency-card .icon.tourist { color: #ffd700; }
+    .emergency-card .name {
+        font-weight: 600;
+        color: #fff;
+        font-size: 1.1rem;
+    }
+    .emergency-card .number {
+        font-family: 'Orbitron', monospace;
+        font-size: 1rem;
+        color: rgba(255,255,255,0.5);
+        margin-top: 0.25rem;
+    }
+
+    #emergency-number {
+        font-family: 'Orbitron', monospace;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #ff3d8a;
+        text-shadow: 0 0 20px rgba(255, 61, 138, 0.3);
+    }
+
+    .sos-btn {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff3d8a, #ff6b6b);
+        border: none;
+        color: #fff;
+        font-size: 1.8rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 0 0 0 rgba(255, 61, 138, 0.7);
+        animation: pulse-sos 2s infinite;
+        cursor: pointer;
+        transition: transform 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin: 0 auto;
+    }
+    .sos-btn:hover {
+        transform: scale(1.05);
+    }
+    .sos-btn i {
+        font-size: 2.5rem;
+    }
+    @keyframes pulse-sos {
+        0% { box-shadow: 0 0 0 0 rgba(255, 61, 138, 0.7); }
+        70% { box-shadow: 0 0 0 30px rgba(255, 61, 138, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 61, 138, 0); }
+    }
+
+    .alert-item {
+        background: rgba(255, 61, 138, 0.05);
+        border-left: 3px solid #ff3d8a;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: rgba(255,255,255,0.8);
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+    .alert-item:hover {
+        background: rgba(255, 61, 138, 0.1);
+    }
+    .alert-item .time {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.4);
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    #emergency-loading {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        color: white;
+    }
+    #emergency-loading .spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 4px solid rgba(255,255,255,0.1);
+        border-top: 4px solid #ff3d8a;
+        border-right: 4px solid #ff6b6b;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 1rem;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.3);
+        padding: 1.5rem 1rem;
+    }
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    #nearby-services {
+        min-height: 60px;
+    }
+
+    @media (max-width: 640px) {
+        .emergency-card {
+            padding: 0.75rem;
+        }
+        .emergency-card .icon {
+            font-size: 1.8rem;
+        }
+        #emergency-number {
+            font-size: 1.4rem;
+        }
+        .sos-btn {
+            width: 90px;
+            height: 90px;
+            font-size: 1.4rem;
+        }
+        .sos-btn i {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Page Heading -->
+    <h1 class="text-4xl md:text-5xl font-bold text-center mb-2">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+            Emergency Hub
+        </span>
+    </h1>
+    <p class="text-center text-white/50 mb-8">Your safety companion — quick access to emergency services and alerts</p>
+
+    <!-- Emergency Number Display -->
+    <div class="glass p-4 rounded-2xl text-center mb-8">
+        <p class="text-white/50 text-sm uppercase tracking-wider">Emergency Number</p>
+        <div id="emergency-number">+1-800-555-0199</div>
+        <p class="text-white/30 text-xs mt-1">Tap to call</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Emergency Contacts & Location -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Emergency Contacts -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-4 flex items-center gap-2">
+                    <i class="fas fa-phone-alt text-pink-400"></i> Emergency Contacts
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="emergency-card" data-contact="police">
+                        <div class="icon police"><i class="fas fa-shield-halved"></i></div>
+                        <div class="name">Police</div>
+                        <div class="number">911</div>
+                    </div>
+                    <div class="emergency-card" data-contact="ambulance">
+                        <div class="icon ambulance"><i class="fas fa-truck-medical"></i></div>
+                        <div class="name">Ambulance</div>
+                        <div class="number">911</div>
+                    </div>
+                    <div class="emergency-card" data-contact="fire">
+                        <div class="icon fire"><i class="fas fa-fire-extinguisher"></i></div>
+                        <div class="name">Fire</div>
+                        <div class="number">911</div>
+                    </div>
+                    <div class="emergency-card" data-contact="tourist">
+                        <div class="icon tourist"><i class="fas fa-flag"></i></div>
+                        <div class="name">Tourist Help</div>
+                        <div class="number">+1-800-123-4567</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Location -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-3 flex items-center gap-2">
+                    <i class="fas fa-location-dot text-cyan-400"></i> Your Location
+                </h3>
+                <div id="current-location" class="text-white/60 text-sm mb-3">
+                    <p class="italic">Location not available</p>
+                </div>
+                <button id="get-location-btn" class="btn-gradient-cyan px-6 py-2.5 rounded-xl text-white font-semibold transition flex items-center gap-2">
+                    <i class="fas fa-crosshairs"></i> Get Location
+                </button>
+            </div>
+
+            <!-- Nearby Emergency Services -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-3 flex items-center gap-2">
+                    <i class="fas fa-hospital text-purple-400"></i> Nearby Services
+                </h3>
+                <div id="nearby-services">
+                    <div class="empty-state">
+                        <i class="fas fa-map-pin"></i>
+                        <p class="text-sm">No services found</p>
+                        <p class="sub text-xs">Click "Get Location" to find nearby hospitals, police stations, and pharmacies</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: SOS, Safety Tips, Alerts -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- SOS Button -->
+            <div class="glass p-6 rounded-2xl text-center">
+                <h3 class="text-lg font-semibold text-white/80 mb-4">SOS Emergency</h3>
+                <button id="sos-btn" class="sos-btn">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    SOS
+                </button>
+                <p class="text-white/30 text-xs mt-3">Press for immediate assistance</p>
+            </div>
+
+            <!-- Safety Tips -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-3 flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-gold-400"></i> Safety Tips
+                </h3>
+                <ul class="space-y-2 text-sm text-white/60">
+                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-cyan-400 mt-0.5"></i> Keep emergency numbers saved in your phone.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-cyan-400 mt-0.5"></i> Share your live location with a trusted contact.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-cyan-400 mt-0.5"></i> Know the local emergency number for your destination.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-cyan-400 mt-0.5"></i> Always carry a portable charger and power bank.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-cyan-400 mt-0.5"></i> Stay aware of your surroundings, especially at night.</li>
+                </ul>
+            </div>
+
+            <!-- Travel Alerts -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-3 flex items-center gap-2">
+                    <i class="fas fa-bell text-pink-400"></i> Travel Alerts
+                </h3>
+                <div id="travel-alerts">
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p class="text-sm">No active alerts</p>
+                        <p class="sub text-xs">Stay safe — we'll notify you of any travel advisories</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay (hidden by default) -->
+    <div id="emergency-loading" class="glass p-6 rounded-2xl mt-6">
+        <div class="spinner"></div>
+        <p class="text-white/80">Fetching emergency data...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/emergency.js') }}"></script>
+{% endblock %}

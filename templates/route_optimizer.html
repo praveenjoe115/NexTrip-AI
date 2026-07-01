@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}Route Optimizer — NexTrip AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Glassmorphism and custom styles for route optimizer */
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: border-color 0.3s, box-shadow 0.3s;
+        color: #fff;
+    }
+    .glass-input:focus {
+        border-color: rgba(0, 240, 255, 0.5);
+        box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), 0 0 20px rgba(0, 240, 255, 0.05);
+        outline: none;
+    }
+    .glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-gradient:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+    }
+    .btn-gradient-success {
+        background: linear-gradient(135deg, #4ecdc4, #44b39d);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-gradient-success:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(78, 205, 196, 0.3);
+    }
+    .btn-outline-glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s;
+    }
+    .btn-outline-glass:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(0, 240, 255, 0.4);
+        transform: translateY(-2px);
+    }
+    .btn-danger-glass {
+        background: rgba(255, 61, 138, 0.1);
+        border: 1px solid rgba(255, 61, 138, 0.2);
+        color: #ff3d8a;
+        transition: all 0.3s;
+    }
+    .btn-danger-glass:hover {
+        background: rgba(255, 61, 138, 0.2);
+        border-color: #ff3d8a;
+        transform: scale(1.02);
+        box-shadow: 0 0 20px rgba(255, 61, 138, 0.15);
+    }
+
+    #route-map {
+        width: 100%;
+        height: 350px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    #route-map .map-placeholder {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.3);
+    }
+    #route-map .map-placeholder i {
+        font-size: 4rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    #route-map-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #route-loading {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        color: white;
+    }
+    #route-loading .spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 4px solid rgba(255,255,255,0.1);
+        border-top: 4px solid #00f0ff;
+        border-right: 4px solid #b44aff;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 1rem;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .stop-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.75rem;
+        padding: 0.6rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+        margin-bottom: 0.5rem;
+    }
+    .stop-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(0, 240, 255, 0.15);
+    }
+    .stop-item .stop-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    .stop-item .stop-label .index {
+        font-family: 'Orbitron', monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #00f0ff;
+        background: rgba(0, 240, 255, 0.1);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stop-item .stop-label .name {
+        font-size: 0.95rem;
+    }
+    .stop-item .remove-stop-btn {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: color 0.2s;
+        font-size: 1rem;
+        padding: 0.2rem 0.4rem;
+    }
+    .stop-item .remove-stop-btn:hover {
+        color: #ff3d8a;
+    }
+
+    .result-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1.5rem;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .result-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(0, 240, 255, 0.2);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    .result-card .icon {
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.25rem;
+    }
+    .result-card .value {
+        font-family: 'Orbitron', monospace;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+    }
+    .result-card .label {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .route-step {
+        background: rgba(255, 255, 255, 0.03);
+        border-left: 3px solid #00f0ff;
+        padding: 0.6rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    .route-step:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+    .route-step .step-detail {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+    }
+    .route-step .step-distance {
+        font-family: 'Orbitron', monospace;
+        font-size: 0.8rem;
+        color: #4ecdc4;
+        font-weight: 600;
+    }
+    .route-step:nth-child(odd) {
+        border-left-color: #b44aff;
+    }
+    .route-step:nth-child(3n) {
+        border-left-color: #ffd700;
+    }
+
+    .stops-list-container {
+        max-height: 200px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+    .stops-list-container::-webkit-scrollbar {
+        width: 4px;
+    }
+    .stops-list-container::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+    }
+    .stops-list-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #00f0ff, #b44aff);
+        border-radius: 8px;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.3);
+        padding: 2rem 1rem;
+    }
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+    .empty-state .sub {
+        font-size: 0.9rem;
+        opacity: 0.6;
+    }
+
+    #optimized-route-list {
+        min-height: 60px;
+    }
+
+    @media (max-width: 640px) {
+        #route-map {
+            height: 250px;
+        }
+        .result-card .value {
+            font-size: 1.4rem;
+        }
+        .stop-item {
+            padding: 0.5rem 0.75rem;
+        }
+        .stop-item .stop-label .name {
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Page Heading -->
+    <h1 class="text-4xl md:text-5xl font-bold text-center mb-2">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+            Route Optimizer
+        </span>
+    </h1>
+    <p class="text-center text-white/50 mb-8">Plan the most efficient multi-stop route for your journey</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <!-- Left Sidebar (2 cols on large) -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Route Form -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-4 flex items-center gap-2">
+                    <i class="fas fa-route text-cyan-400"></i> Plan Route
+                </h3>
+
+                <div class="space-y-3">
+                    <!-- Starting Point -->
+                    <div>
+                        <label for="start-location" class="block text-sm font-medium text-white/70 mb-1">Starting Point</label>
+                        <input type="text" id="start-location" placeholder="Enter starting location..." 
+                               class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-white/40">
+                    </div>
+
+                    <!-- Add Stop -->
+                    <div>
+                        <label for="stop-location" class="block text-sm font-medium text-white/70 mb-1">Add Stop</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="stop-location" placeholder="Enter stop location..." 
+                                   class="glass-input flex-1 px-4 py-3 rounded-xl text-white placeholder-white/40">
+                            <button id="add-stop-btn" class="btn-gradient px-4 py-3 rounded-xl text-white font-semibold transition flex items-center gap-1 whitespace-nowrap">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stops List -->
+                    <div>
+                        <label class="block text-sm font-medium text-white/70 mb-2">Stops (<span id="stops-count">0</span>)</label>
+                        <div id="stops-list" class="stops-list-container">
+                            <div class="empty-state">
+                                <i class="fas fa-plus-circle"></i>
+                                <p class="text-sm">No stops added yet</p>
+                                <p class="sub text-xs">Add stops to optimize your route</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optimize Button -->
+                    <button id="optimize-route-btn" class="btn-gradient-success w-full py-3 rounded-xl text-white font-semibold transition flex items-center justify-center gap-2">
+                        <i class="fas fa-wand-magic-sparkles"></i> Optimize Route
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side (3 cols on large) -->
+        <div class="lg:col-span-3 space-y-6">
+            <!-- Map Container -->
+            <div id="route-map">
+                <div id="route-map-content">
+                    <div class="map-placeholder">
+                        <i class="fas fa-map"></i>
+                        <p>Route map will appear here</p>
+                        <p class="text-sm opacity-50">Add stops and optimize to see your route</p>
+                    </div>
+                </div>
+                <!-- Loading Overlay -->
+                <div id="route-loading">
+                    <div class="spinner"></div>
+                    <p class="text-white/80">Optimizing your route...</p>
+                </div>
+            </div>
+
+            <!-- Route Results -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="result-card">
+                    <div class="icon"><i class="fas fa-road"></i></div>
+                    <div class="value" id="total-distance">--</div>
+                    <div class="label">Total Distance</div>
+                </div>
+                <div class="result-card">
+                    <div class="icon"><i class="fas fa-clock"></i></div>
+                    <div class="value" id="total-duration">--</div>
+                    <div class="label">Total Duration</div>
+                </div>
+                <div class="result-card">
+                    <div class="icon"><i class="fas fa-coins"></i></div>
+                    <div class="value" id="estimated-cost">--</div>
+                    <div class="label">Estimated Cost</div>
+                </div>
+            </div>
+
+            <!-- Optimized Route List -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-4 flex items-center gap-2">
+                    <i class="fas fa-list-check text-purple-400"></i> Optimized Route
+                </h3>
+                <div id="optimized-route-list">
+                    <div class="empty-state">
+                        <i class="fas fa-map-pin"></i>
+                        <p class="text-lg">No route planned yet</p>
+                        <p class="sub">Add locations and click "Optimize Route"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/route.js') }}"></script>
+{% endblock %}

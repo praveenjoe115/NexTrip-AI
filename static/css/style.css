@@ -1,0 +1,589 @@
+/* ============================================================
+   MASTER STYLESHEET — NexTrip AI
+   Premium SaaS | Futuristic Cyberpunk | Glassmorphism
+   ============================================================ */
+
+/* ----- 1. GLOBAL RESET & BASE ----- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #050816;
+    color: #e0e0ff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(0, 240, 255, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(180, 74, 255, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 80%, rgba(255, 61, 138, 0.04) 0%, transparent 50%);
+    background-attachment: fixed;
+}
+
+/* ----- Selection ----- */
+::selection {
+    background: rgba(0, 240, 255, 0.25);
+    color: #fff;
+}
+
+/* ----- Scrollbar (Webkit) ----- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0b1120;
+    border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00f0ff, #b44aff);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #00f0ff, #ff3d8a);
+}
+
+/* ----- 2. ANIMATED BACKGROUND GRADIENT (optional) ----- */
+.bg-gradient-main {
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(180, 74, 255, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 80%, rgba(255, 61, 138, 0.05) 0%, transparent 50%),
+        #050816;
+}
+
+/* Animated version (for hero) */
+.bg-animated {
+    animation: gradientShift 20s ease-in-out infinite alternate;
+}
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* ----- 3. GLASSMORPHISM CLASSES ----- */
+.glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.glass-dark {
+    background: rgba(5, 8, 22, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    will-change: transform;
+}
+.glass-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ----- 4. NAVBAR ----- */
+.navbar-glass {
+    background: rgba(5, 8, 22, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.3s ease;
+}
+
+.nav-link {
+    position: relative;
+    color: #b0b0d0;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+.nav-link:hover {
+    color: #00f0ff;
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #00f0ff, #b44aff);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+.nav-link:hover::after {
+    width: 70%;
+}
+.nav-link.active {
+    color: #00f0ff;
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+.nav-link.active::after {
+    width: 70%;
+}
+
+/* Mobile Menu */
+.mobile-menu {
+    background: rgba(5, 8, 22, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.mobile-menu .nav-link {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    display: block;
+}
+
+/* ----- 5. BUTTONS ----- */
+.btn-gradient {
+    background: linear-gradient(135deg, #00f0ff, #b44aff);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0, 240, 255, 0.15);
+}
+.btn-gradient:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 30px rgba(0, 240, 255, 0.3);
+}
+.btn-gradient:active {
+    transform: scale(0.96);
+}
+
+.btn-outline {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.7rem 1.8rem;
+    border-radius: 9999px;
+    color: #e0e0ff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #00f0ff;
+    color: #00f0ff;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.05);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff3d8a, #ff6b6b);
+    border: none;
+    padding: 0.7rem 1.8rem;
+    border-radius: 9999px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.btn-danger:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 30px rgba(255, 61, 138, 0.3);
+}
+
+/* ----- 6. INPUTS (Glass) ----- */
+.glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    padding: 0.8rem 1.2rem;
+    color: #e0e0ff;
+    font-size: 1rem;
+    width: 100%;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    outline: none;
+    font-family: inherit;
+}
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+.glass-input:focus {
+    border-color: rgba(0, 240, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15), 0 0 30px rgba(0, 240, 255, 0.05);
+}
+.glass-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Select variant */
+.glass-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23b0b0d0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 1rem center;
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    padding-right: 2.5rem;
+}
+.glass-select option {
+    background: #0b1120;
+    color: #e0e0ff;
+}
+
+/* Textarea */
+.glass-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* ----- 7. CARDS ----- */
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+.card:hover {
+    border-color: rgba(0, 240, 255, 0.15);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.stat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.5rem;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(180, 74, 255, 0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+.stat-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0, 240, 255, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+.stat-card .number {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00f0ff, #b44aff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.stat-card .label {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 1.5rem;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-style: preserve-3d;
+    perspective: 800px;
+}
+.feature-card:hover {
+    transform: translateY(-8px) rotateX(2deg) rotateY(-3deg) scale(1.02);
+    border-color: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.feature-card .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #00f0ff, #b44aff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.feature-card h3 {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+.feature-card p {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* ----- 8. TOASTS ----- */
+#toast-container {
+    position: fixed;
+    bottom: 6rem;
+    right: 2rem;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 340px;
+    width: 100%;
+    pointer-events: none;
+}
+@media (max-width: 640px) {
+    #toast-container {
+        right: 1rem;
+        max-width: calc(100% - 2rem);
+        bottom: 5rem;
+    }
+}
+
+.toast {
+    background: rgba(5, 8, 22, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    padding: 0.9rem 1.2rem;
+    color: #e0e0ff;
+    font-size: 0.95rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    will-change: transform, opacity;
+}
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+.toast i {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+.toast-success i { color: #00f0ff; }
+.toast-error i { color: #ff3d8a; }
+.toast-warning i { color: #ffd700; }
+.toast-info i { color: #b44aff; }
+
+/* ----- 9. LOADER OVERLAY ----- */
+#loader-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #050816;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+    opacity: 1;
+    visibility: visible;
+}
+#loader-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.loader-spinner {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    border-top: 4px solid #00f0ff;
+    border-right: 4px solid #b44aff;
+    border-bottom: 4px solid #ff3d8a;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.15);
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+#loader-overlay p {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.4);
+    animation: pulseText 2s ease-in-out infinite;
+}
+@keyframes pulseText {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* ----- 10. SCROLL ANIMATIONS ----- */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: opacity, transform;
+}
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ----- 11. HERO / FLOATING GLOW EFFECTS ----- */
+.glow-cyan {
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.15);
+}
+.glow-purple {
+    box-shadow: 0 0 40px rgba(180, 74, 255, 0.15);
+}
+.glow-pink {
+    box-shadow: 0 0 40px rgba(255, 61, 138, 0.15);
+}
+.glow-gold {
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.15);
+}
+
+/* Floating shapes (used in hero) */
+.floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    pointer-events: none;
+    animation: floatShape 20s ease-in-out infinite alternate;
+}
+@keyframes floatShape {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, -30px) scale(1.1); }
+}
+
+/* ----- 12. PARTICLES LAYER (support) ----- */
+#particles-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+}
+
+/* ----- 13. RESPONSIVE DESIGN ----- */
+/* Mobile first — already using flex/grid. Additional tweaks */
+@media (max-width: 640px) {
+    .glass-card {
+        padding: 1rem;
+    }
+    .stat-card .number {
+        font-size: 2rem;
+    }
+    .feature-card {
+        padding: 1.5rem 1rem;
+    }
+    .btn-gradient, .btn-outline, .btn-danger {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+    .glass-input {
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-card .number {
+        font-size: 1.6rem;
+    }
+    .feature-card .icon {
+        font-size: 2.2rem;
+    }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .glass-card {
+        padding: 1.25rem;
+    }
+}
+
+/* ----- 14. MISC UTILITIES ----- */
+.text-gradient {
+    background: linear-gradient(135deg, #00f0ff, #b44aff, #ff3d8a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-cyan { color: #00f0ff; }
+.text-purple { color: #b44aff; }
+.text-pink { color: #ff3d8a; }
+.text-gold { color: #ffd700; }
+
+/* Hidden utility (used by mobile menu) */
+.hidden {
+    display: none !important;
+}
+
+/* Smooth transition for theme changes */
+* {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease;
+}
+
+/* ============================================================
+   END — NexTrip AI Master Stylesheet
+   ============================================================ */

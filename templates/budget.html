@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}Budget Planner — NexTrip AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Glassmorphism and custom styles for budget planner */
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: border-color 0.3s, box-shadow 0.3s;
+        color: #fff;
+    }
+    .glass-input:focus {
+        border-color: rgba(0, 240, 255, 0.5);
+        box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), 0 0 20px rgba(0, 240, 255, 0.05);
+        outline: none;
+    }
+    .glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+    .glass-select {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23b0b0d0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        color: #e0e0ff;
+    }
+    .glass-select option {
+        background: #1a1a2e;
+        color: #e0e0ff;
+    }
+    .glass-select:focus {
+        border-color: rgba(0, 240, 255, 0.5);
+        box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), 0 0 20px rgba(0, 240, 255, 0.05);
+        outline: none;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-gradient:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+    }
+    .btn-gradient-danger {
+        background: linear-gradient(135deg, #ff3d8a, #ff6b6b);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-gradient-danger:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(255, 61, 138, 0.3);
+    }
+    .btn-outline-glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s;
+    }
+    .btn-outline-glass:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(0, 240, 255, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .budget-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .budget-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(0, 240, 255, 0.2);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    .budget-card .icon {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+    .budget-card .value {
+        font-family: 'Orbitron', monospace;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+    }
+    .budget-card .label {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+    .budget-card.remaining .value {
+        color: #00f0ff;
+    }
+    .budget-card.spent .value {
+        color: #ff3d8a;
+    }
+    .budget-card.budget .value {
+        color: #ffd700;
+    }
+
+    #expense-chart-container {
+        position: relative;
+        height: 220px;
+        width: 100%;
+    }
+
+    .expense-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    .expense-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(0, 240, 255, 0.15);
+    }
+    .expense-item .info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .expense-item .info .title {
+        font-weight: 600;
+        color: #fff;
+    }
+    .expense-item .info .category {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+    .expense-item .amount {
+        font-family: 'Orbitron', monospace;
+        font-weight: 700;
+        color: #ff3d8a;
+        margin-right: 1rem;
+    }
+    .expense-item .delete-btn {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: color 0.2s;
+        font-size: 1.1rem;
+    }
+    .expense-item .delete-btn:hover {
+        color: #ff3d8a;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.3);
+        padding: 2rem 1rem;
+    }
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 0.2rem 0.7rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.6);
+    }
+    .category-badge.food { border-color: #ff6b6b; color: #ff6b6b; }
+    .category-badge.transport { border-color: #4ecdc4; color: #4ecdc4; }
+    .category-badge.hotel { border-color: #45b7d1; color: #45b7d1; }
+    .category-badge.shopping { border-color: #f9ca24; color: #f9ca24; }
+    .category-badge.activities { border-color: #a29bfe; color: #a29bfe; }
+    .category-badge.emergency { border-color: #ff3d8a; color: #ff3d8a; }
+    .category-badge.other { border-color: #8395a7; color: #8395a7; }
+
+    .budget-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+        .budget-card .value {
+            font-size: 1.5rem;
+        }
+        .budget-actions {
+            flex-direction: column;
+        }
+        .budget-actions button {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Page Heading -->
+    <h1 class="text-4xl md:text-5xl font-bold text-center mb-2">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+            Budget Planner
+        </span>
+    </h1>
+    <p class="text-center text-white/50 mb-10">Track your travel expenses and stay on budget</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Budget Setup & Expense Form -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Budget Setup -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-4 flex items-center gap-2">
+                    <i class="fas fa-wallet text-cyan-400"></i> Budget Setup
+                </h3>
+                <div class="space-y-3">
+                    <input type="text" id="trip-name" placeholder="Trip name (e.g., Paris 2026)" 
+                           class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-white/40">
+                    <input type="number" id="total-budget" placeholder="Total budget amount ($)" 
+                           class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-white/40">
+                    <button id="set-budget-btn" class="btn-gradient w-full py-3 rounded-xl text-white font-semibold transition flex items-center justify-center gap-2">
+                        <i class="fas fa-check"></i> Set Budget
+                    </button>
+                </div>
+            </div>
+
+            <!-- Expense Form -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-4 flex items-center gap-2">
+                    <i class="fas fa-plus-circle text-purple-400"></i> Add Expense
+                </h3>
+                <div class="space-y-3">
+                    <input type="text" id="expense-title" placeholder="Expense title" 
+                           class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-white/40">
+                    <input type="number" id="expense-amount" placeholder="Amount ($)" 
+                           class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-white/40">
+                    <select id="expense-category" class="glass-select w-full px-4 py-3 rounded-xl text-white">
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Hotel">Hotel</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Activities">Activities</option>
+                        <option value="Emergency">Emergency</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <button id="add-expense-btn" class="btn-gradient w-full py-3 rounded-xl text-white font-semibold transition flex items-center justify-center gap-2">
+                        <i class="fas fa-plus"></i> Add Expense
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Summary, Chart, Expenses -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="budget-card budget">
+                    <div class="icon"><i class="fas fa-coin"></i></div>
+                    <div class="value" id="budget-display">$0</div>
+                    <div class="label">Total Budget</div>
+                </div>
+                <div class="budget-card spent">
+                    <div class="icon"><i class="fas fa-receipt"></i></div>
+                    <div class="value" id="spent-display">$0</div>
+                    <div class="label">Total Spent</div>
+                </div>
+                <div class="budget-card remaining">
+                    <div class="icon"><i class="fas fa-circle-check"></i></div>
+                    <div class="value" id="remaining-display">$0</div>
+                    <div class="label">Remaining</div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="text-lg font-semibold text-white/80 mb-4 flex items-center gap-2">
+                    <i class="fas fa-chart-pie text-cyan-400"></i> Expense Breakdown
+                </h3>
+                <div id="expense-chart-container">
+                    <canvas id="expense-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Expense List -->
+            <div class="glass p-6 rounded-2xl">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                    <h3 class="text-lg font-semibold text-white/80 flex items-center gap-2">
+                        <i class="fas fa-list text-purple-400"></i> Expense List
+                    </h3>
+                    <div class="budget-actions">
+                        <button id="clear-expenses-btn" class="btn-gradient-danger px-4 py-2 rounded-xl text-white font-medium transition flex items-center gap-2 text-sm">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                        <button id="export-budget-btn" class="btn-outline-glass px-4 py-2 rounded-xl text-white/80 font-medium transition flex items-center gap-2 text-sm">
+                            <i class="fas fa-file-export"></i> Export Report
+                        </button>
+                    </div>
+                </div>
+                <div id="expense-list">
+                    <div class="empty-state">
+                        <i class="fas fa-wallet"></i>
+                        <p class="text-lg">No expenses recorded yet</p>
+                        <p class="text-sm opacity-50">Add your first expense to start tracking</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/expenses.js') }}"></script>
+{% endblock %}

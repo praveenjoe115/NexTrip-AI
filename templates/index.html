@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}NexTrip AI — Your Smart Travel Companion{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero-shapes {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.4;
+        animation: floatShape 20s ease-in-out infinite alternate;
+    }
+
+    .shape-1 {
+        width: 40vw;
+        height: 40vw;
+        background: radial-gradient(circle, #00f0ff, transparent 70%);
+        top: -10%;
+        left: -10%;
+        animation-duration: 25s;
+    }
+
+    .shape-2 {
+        width: 30vw;
+        height: 30vw;
+        background: radial-gradient(circle, #b44aff, transparent 70%);
+        bottom: -5%;
+        right: -5%;
+        animation-duration: 30s;
+        animation-delay: 2s;
+    }
+
+    .shape-3 {
+        width: 20vw;
+        height: 20vw;
+        background: radial-gradient(circle, #ff3d8a, transparent 70%);
+        top: 40%;
+        left: 40%;
+        animation-duration: 20s;
+        animation-delay: 4s;
+    }
+
+    @keyframes floatShape {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(30px, -30px) scale(1.2); }
+    }
+
+    .floating-card {
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+    }
+
+    .floating-card:hover {
+        transform: translateY(-12px) rotateX(4deg) rotateY(-6deg) scale(1.02);
+        box-shadow: 0 30px 60px rgba(0, 240, 255, 0.25), 0 0 0 1px rgba(0, 240, 255, 0.2);
+    }
+
+    .floating-card .icon-wrap {
+        font-size: 3rem;
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .search-glow:focus {
+        box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.3), 0 0 30px rgba(0, 240, 255, 0.1);
+    }
+
+    .counter-number {
+        font-family: 'Orbitron', monospace;
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .testimonial-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    .cta-glow {
+        background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(180, 74, 255, 0.08));
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 60px rgba(0, 240, 255, 0.05);
+    }
+
+    .btn-cta {
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-cta:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
+    }
+
+    .dest-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.4s ease;
+        overflow: hidden;
+    }
+
+    .dest-card:hover {
+        transform: translateY(-10px) scale(1.01);
+        border-color: rgba(0, 240, 255, 0.3);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .dest-image {
+        height: 160px;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.5s ease;
+    }
+
+    .dest-card:hover .dest-image {
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 640px) {
+        .counter-number { font-size: 2.2rem; }
+        .hero-title { font-size: 2.8rem !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden px-4 py-20">
+    <div class="hero-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="relative z-10 max-w-5xl mx-auto text-center">
+        <h1 class="hero-title text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+                NexTrip AI
+            </span>
+        </h1>
+
+        <p class="mt-4 text-xl md:text-2xl font-light text-white/70 max-w-2xl mx-auto">
+            Your AI-powered travel companion — plan, explore, and experience the world like never before.
+        </p>
+
+        <div class="mt-10 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
+            <input type="text" id="hero-destination" placeholder="Where to? e.g., Paris, Tokyo"
+                   class="flex-1 px-6 py-4 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white placeholder-white/40 focus:outline-none search-glow transition">
+
+            <button id="hero-explore-btn" class="px-8 py-4 rounded-full font-semibold text-white bg-gradient-to-r from-cyan-400 to-purple-500 hover:shadow-[0_0_30px_#00f0ff66] transition duration-300 transform hover:scale-105">
+                <i class="fas fa-rocket mr-2"></i>Explore
+            </button>
+        </div>
+
+        <div class="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <div class="floating-card glass p-6 text-center">
+                <div class="icon-wrap"><i class="fas fa-route"></i></div>
+                <h3 class="mt-3 text-lg font-bold text-white/90">Smart Planning</h3>
+                <p class="text-sm text-white/50">AI-driven itineraries tailored to you.</p>
+            </div>
+
+            <div class="floating-card glass p-6 text-center">
+                <div class="icon-wrap"><i class="fas fa-cloud-sun"></i></div>
+                <h3 class="mt-3 text-lg font-bold text-white/90">Real-time Weather</h3>
+                <p class="text-sm text-white/50">Up-to-date forecasts anywhere.</p>
+            </div>
+
+            <div class="floating-card glass p-6 text-center">
+                <div class="icon-wrap"><i class="fas fa-gem"></i></div>
+                <h3 class="mt-3 text-lg font-bold text-white/90">Hidden Gems</h3>
+                <p class="text-sm text-white/50">Discover off-the-beaten-path treasures.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 px-4 max-w-7xl mx-auto">
+    <h2 class="text-3xl md:text-5xl font-bold text-center">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+            Popular Destinations
+        </span>
+    </h2>
+
+    <p class="text-center text-white/50 mt-2 mb-12">Handpicked by our AI for you</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="dest-card rounded-2xl">
+            <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=200&fit=crop');"></div>
+            <div class="p-4">
+                <h3 class="text-lg font-bold text-white/90">Paris</h3>
+                <p class="text-sm text-white/50">🇫🇷 City of Light</p>
+            </div>
+        </div>
+
+        <div class="dest-card rounded-2xl">
+            <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=400&h=200&fit=crop');"></div>
+            <div class="p-4">
+                <h3 class="text-lg font-bold text-white/90">Tokyo</h3>
+                <p class="text-sm text-white/50">🇯🇵 Neon Metropolis</p>
+            </div>
+        </div>
+
+        <div class="dest-card rounded-2xl">
+            <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=400&h=200&fit=crop');"></div>
+            <div class="p-4">
+                <h3 class="text-lg font-bold text-white/90">New York</h3>
+                <p class="text-sm text-white/50">🇺🇸 The Big Apple</p>
+            </div>
+        </div>
+
+        <div class="dest-card rounded-2xl">
+            <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=200&fit=crop');"></div>
+            <div class="p-4">
+                <h3 class="text-lg font-bold text-white/90">Bali</h3>
+                <p class="text-sm text-white/50">🇮🇩 Island of Gods</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 px-4 max-w-6xl mx-auto">
+    <div class="glass p-8 md:p-12 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+        <div>
+            <div class="counter-number" data-target="120">0</div>
+            <p class="text-white/50 mt-1">Destinations</p>
+        </div>
+
+        <div>
+            <div class="counter-number" data-target="500">0</div>
+            <p class="text-white/50 mt-1">Travel Plans</p>
+        </div>
+
+        <div>
+            <div class="counter-number" data-target="98">0</div>
+            <p class="text-white/50 mt-1">% Satisfaction</p>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 px-4 max-w-7xl mx-auto">
+    <h2 class="text-3xl md:text-5xl font-bold text-center">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+            What Travelers Say
+        </span>
+    </h2>
+
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="testimonial-card glass p-6 rounded-2xl">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-user-circle text-4xl text-cyan-400"></i>
+                <div>
+                    <p class="font-bold text-white/90">Sarah M.</p>
+                    <p class="text-xs text-white/40">⭐ 5.0</p>
+                </div>
+            </div>
+            <p class="mt-4 text-white/70 text-sm italic">
+                "NexTrip AI made my Japan trip flawless. The hidden gems suggestions were incredible!"
+            </p>
+        </div>
+
+        <div class="testimonial-card glass p-6 rounded-2xl">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-user-circle text-4xl text-purple-400"></i>
+                <div>
+                    <p class="font-bold text-white/90">James K.</p>
+                    <p class="text-xs text-white/40">⭐ 4.8</p>
+                </div>
+            </div>
+            <p class="mt-4 text-white/70 text-sm italic">
+                "The route optimizer saved me hours. Best travel tool I've ever used."
+            </p>
+        </div>
+
+        <div class="testimonial-card glass p-6 rounded-2xl">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-user-circle text-4xl text-pink-400"></i>
+                <div>
+                    <p class="font-bold text-white/90">Elena R.</p>
+                    <p class="text-xs text-white/40">⭐ 4.9</p>
+                </div>
+            </div>
+            <p class="mt-4 text-white/70 text-sm italic">
+                "Loved the real-time weather updates and emergency mode. Felt safe and well-prepared."
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 px-4 max-w-5xl mx-auto">
+    <div class="cta-glow glass p-12 rounded-3xl text-center">
+        <h2 class="text-3xl md:text-5xl font-bold">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+                Ready to Explore?
+            </span>
+        </h2>
+
+        <p class="mt-4 text-white/60 text-lg max-w-xl mx-auto">
+            Start planning your next adventure with NexTrip AI. It's free, smart, and built for you.
+        </p>
+
+        <a href="{{ url_for('planner') }}" class="btn-cta inline-block mt-8 px-10 py-4 rounded-full text-white font-semibold text-lg transition">
+            <i class="fas fa-paper-plane mr-2"></i>Start Planning
+        </a>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const counters = document.querySelectorAll('.counter-number');
+
+        const animateCounter = (el) => {
+            const target = parseInt(el.getAttribute('data-target'));
+            let current = 0;
+            const increment = Math.ceil(target / 30);
+
+            const timer = setInterval(() => {
+                current += increment;
+
+                if (current >= target) {
+                    el.textContent = target + (target > 100 ? '+' : '');
+                    clearInterval(timer);
+                } else {
+                    el.textContent = current;
+                }
+            }, 80);
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.dataset.animated) {
+                    entry.target.dataset.animated = 'true';
+                    animateCounter(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => observer.observe(counter));
+
+        const exploreBtn = document.getElementById('hero-explore-btn');
+        const destinationInput = document.getElementById('hero-destination');
+
+        exploreBtn.addEventListener('click', function () {
+            const destination = destinationInput.value.trim();
+
+            if (destination) {
+                if (window.showToast) {
+                    window.showToast(`Taking you to planner for ${destination}...`, 'info', 2000);
+                }
+
+                setTimeout(() => {
+                    window.location.href = `/planner?destination=${encodeURIComponent(destination)}`;
+                }, 600);
+            } else {
+                if (window.showToast) {
+                    window.showToast('Please enter a destination!', 'warning', 2000);
+                } else {
+                    alert('Please enter a destination!');
+                }
+            }
+        });
+
+        destinationInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                exploreBtn.click();
+            }
+        });
+    });
+</script>
+{% endblock %}

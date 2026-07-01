@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Weather Intelligence — NexTrip AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Additional glassmorphism and custom styles for weather */
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .glass-input:focus {
+        border-color: rgba(0, 240, 255, 0.5);
+        box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), 0 0 20px rgba(0, 240, 255, 0.05);
+        outline: none;
+    }
+    .glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+    .btn-gradient {
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-gradient:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+    }
+    .weather-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .weather-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(0, 240, 255, 0.25);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    .weather-card .icon {
+        font-size: 3rem;
+        background: linear-gradient(135deg, #00f0ff, #b44aff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+    .weather-card .value {
+        font-family: 'Orbitron', monospace;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #fff;
+    }
+    .weather-card .label {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    .forecast-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.2s;
+        min-width: 100px;
+        flex: 0 0 auto;
+    }
+    .forecast-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(0, 240, 255, 0.2);
+    }
+    .forecast-item .day {
+        font-weight: 600;
+        color: #fff;
+    }
+    .forecast-item .temp {
+        font-family: 'Orbitron', monospace;
+        font-size: 1.2rem;
+        color: #00f0ff;
+    }
+    .forecast-item .condition {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .suggestion-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-left: 3px solid #b44aff;
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    .suggestion-card .icon {
+        color: #b44aff;
+        margin-right: 0.75rem;
+    }
+
+    .tip-tag {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.4rem 1.2rem;
+        border-radius: 9999px;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        display: inline-block;
+        margin: 0.25rem;
+        transition: all 0.2s;
+    }
+    .tip-tag:hover {
+        background: rgba(0, 240, 255, 0.1);
+        border-color: #00f0ff;
+        color: #00f0ff;
+    }
+
+    #weather-loading {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        color: white;
+    }
+    #weather-loading .spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 4px solid rgba(255,255,255,0.1);
+        border-top: 4px solid #00f0ff;
+        border-right: 4px solid #b44aff;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 1rem;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    #weather-result {
+        min-height: 120px;
+    }
+    .result-placeholder {
+        text-align: center;
+        color: rgba(255,255,255,0.3);
+        padding: 2rem 0;
+    }
+    .result-placeholder i {
+        font-size: 4rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .forecast-scroll {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        display: flex;
+        gap: 1rem;
+        scrollbar-width: thin;
+    }
+    .forecast-scroll::-webkit-scrollbar {
+        height: 4px;
+    }
+    .forecast-scroll::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+    }
+    .forecast-scroll::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #00f0ff, #b44aff);
+        border-radius: 8px;
+    }
+
+    @media (max-width: 640px) {
+        .weather-card .value {
+            font-size: 1.6rem;
+        }
+        .forecast-item {
+            min-width: 80px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-4xl md:text-5xl font-bold text-center mb-2">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+            Weather Intelligence
+        </span>
+    </h1>
+    <p class="text-center text-white/50 mb-10">Real-time weather insights for your travels</p>
+
+    <!-- Search Section -->
+    <div class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mb-10">
+        <input type="text" id="city-input" placeholder="Enter city name..." 
+               class="glass-input flex-1 px-5 py-3 rounded-full text-white placeholder-white/40">
+        <button id="get-weather-btn" class="btn-gradient px-6 py-3 rounded-full text-white font-semibold transition flex items-center justify-center gap-2">
+            <i class="fas fa-cloud-sun"></i> Get Weather
+        </button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="weather-loading" class="glass p-6 rounded-2xl">
+        <div class="spinner"></div>
+        <p class="text-white/80">Fetching weather data...</p>
+    </div>
+
+    <!-- Weather Result Section -->
+    <div id="weather-result">
+        <div class="result-placeholder">
+            <i class="fas fa-cloud"></i>
+            <p class="text-lg">Weather will appear here</p>
+            <p class="text-sm opacity-50">Search for a city to get started</p>
+        </div>
+    </div>
+
+    <!-- Weather Cards (4 metrics) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6" id="weather-cards">
+        <div class="weather-card">
+            <div class="icon"><i class="fas fa-temperature-high"></i></div>
+            <div class="value" id="temp-display">--</div>
+            <div class="label">Temperature</div>
+        </div>
+        <div class="weather-card">
+            <div class="icon"><i class="fas fa-cloud"></i></div>
+            <div class="value" id="condition-display">--</div>
+            <div class="label">Condition</div>
+        </div>
+        <div class="weather-card">
+            <div class="icon"><i class="fas fa-droplet"></i></div>
+            <div class="value" id="humidity-display">--</div>
+            <div class="label">Humidity</div>
+        </div>
+        <div class="weather-card">
+            <div class="icon"><i class="fas fa-wind"></i></div>
+            <div class="value" id="wind-display">--</div>
+            <div class="label">Wind Speed</div>
+        </div>
+    </div>
+
+    <!-- AI Travel Suggestions -->
+    <div class="glass p-6 rounded-2xl mt-8">
+        <h3 class="text-lg font-semibold text-white/80 mb-3 flex items-center gap-2">
+            <i class="fas fa-robot text-purple-400"></i> AI Travel Suggestions
+        </h3>
+        <div id="travel-suggestions" class="text-white/60 text-sm">
+            <p class="italic">Weather-based recommendations will appear here.</p>
+        </div>
+    </div>
+
+    <!-- 5-Day Forecast -->
+    <div class="glass p-6 rounded-2xl mt-6">
+        <h3 class="text-lg font-semibold text-white/80 mb-3 flex items-center gap-2">
+            <i class="fas fa-calendar-week text-cyan-400"></i> 5-Day Forecast
+        </h3>
+        <div id="forecast-container" class="forecast-scroll">
+            <!-- Forecast items will be inserted here by JavaScript -->
+            <div class="text-white/40 text-sm italic">Search for a city to see the forecast.</div>
+        </div>
+    </div>
+
+    <!-- Travel Tips Section -->
+    <div class="glass p-6 rounded-2xl mt-6">
+        <h3 class="text-lg font-semibold text-white/80 mb-3 flex items-center gap-2">
+            <i class="fas fa-lightbulb text-yellow-400"></i> Weather Travel Tips
+        </h3>
+        <div id="weather-tips" class="flex flex-wrap gap-2">
+            <span class="tip-tag">Pack an umbrella</span>
+            <span class="tip-tag">Stay hydrated</span>
+            <span class="tip-tag">Check UV index</span>
+            <span class="tip-tag">Wear layers</span>
+            <span class="tip-tag">Plan indoor activities</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/weather.js') }}"></script>
+{% endblock %}
