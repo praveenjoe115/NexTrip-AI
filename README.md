@@ -88,7 +88,7 @@ The platform combines Generative AI with travel utilities to provide an all-in-o
 
 ### 🏠 Home Page
 
-![Home Page](screenshots/01_homepage1.png)
+![Home Page](https://raw.githubusercontent.com/praveenjoe115/NexTrip-AI/main/screenshots/01_homepage1.png)
 
 ---
 
@@ -106,7 +106,7 @@ The platform combines Generative AI with travel utilities to provide an all-in-o
 
 ### 📍 Nearby Places
 
-![Nearby Page](screenshots/04_nearbypage.png)
+![Nearby Page](https://raw.githubusercontent.com/praveenjoe115/NexTrip-AI/main/screenshots/04_nearbypage.png)
 
 ---
 
